@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+import os
 
 #nadowan czstka 1D przestrzen i jednorodne pole o zmiennej amplitudzie oscylujacej w czasie
 #ewolucja f falowej elektrony i pochlanianie i oddawnaie energii elektrycznej
@@ -49,9 +51,9 @@ def generate_H(psi, x_k, delta_x, kappa, omega, tau, N):
 	H[:,1:N] = -1*(psi[:,:N-1]+psi[:,2:]-2*psi[:,1:N])/delta_x/delta_x/2 + kappa*(x_k[:,1:N]-1/2)*psi[:,1:N]*np.sin(omega*tau)
 	return H
 
-kappa = 0
-omega = 0 
-tau = 1
+kappa = 5
+omega = 10 
+tau = 0
 
 N = 100
 delta_x = 1./N
@@ -67,8 +69,25 @@ H_I = generate_H(psi=psi_I, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, 
 
 number_of_steps = 4000
 delta_tau = 0.0001
+num=2
+try:
+	omega = (int(sys.argv[2])*0.5+1)*np.pi*np.pi
+	print(omega)
+	num = int(sys.argv[2])
+except:
+	omega = (0.5+1)*np.pi*np.pi
+	print("except data")
 
-path_dat = "data_n"+str(n)+".dat"
+folder = "kappa"+str(kappa)+"omega"+str(num)
+
+try:
+	os.mkdir(folder)
+except:
+	print(folder)
+	print("except folder")
+
+path_dat = folder+"/data_n"+str(n)+".dat"
+
 
 with open(path_dat, "w") as f:
 	f.write('')
@@ -89,4 +108,6 @@ for i in range(number_of_steps):
 			f.write('\n\n')
 	if i == 1 or i == number_of_steps/2 or i ==number_of_steps-2:
 		rho_k = psi_R[:,::2]**2 + psi_I[:,::2]**2
-		np.savetxt("rho_n"+str(n)+'i'+str(i)+".dat", rho_k)
+		np.savetxt(folder+"/rho_n"+str(n)+'i'+str(i)+".dat", rho_k)
+
+print("finish")
