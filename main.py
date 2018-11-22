@@ -93,6 +93,7 @@ with open(path_dat, "w") as f:
 	f.write('')
 
 for i in range(number_of_steps):
+	tau = i*delta_tau
 	psi_R = psi_R + H_I*delta_tau/2
 	H_R = generate_H(psi=psi_R, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
 	psi_I = psi_I - H_R*delta_tau

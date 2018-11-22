@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 kappa = 5
-omega = 3
-tau = 0
+omega = 1
 dat_i = 0.0001
 
 folder = "kappa"+str(kappa)+"omega"+str(omega)
