@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*- 
+
 import numpy as np
 import sys
 import os
@@ -51,43 +54,42 @@ def generate_H(psi, x_k, delta_x, kappa, omega, tau, N):
 	H[:,1:N] = -1*(psi[:,:N-1]+psi[:,2:]-2*psi[:,1:N])/delta_x/delta_x/2 + kappa*(x_k[:,1:N]-1/2)*psi[:,1:N]*np.sin(omega*tau)
 	return H
 
+const = 8
 kappa = 5
-omega = 10 
 tau = 0
 
 N = 100
 delta_x = 1./N
 x_k = np.array(range(N+1)).reshape(1,N+1)*delta_x
 
-n = 1 #1 4 9
+n = 4 #1 4 9
+
+number_of_steps = 4000
+delta_tau = 0.0001
 
 psi_I = np.zeros(shape=(1,N+1))
 psi_R = np.sqrt(2)*np.sin(np.pi*x_k*n)
 
-H_R = generate_H(psi=psi_R, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
-H_I = generate_H(psi=psi_I, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
-
-number_of_steps = 4000
-delta_tau = 0.0001
-num=2
 try:
-	omega = (int(sys.argv[2])*0.5+1)*np.pi*np.pi
-	print(omega)
-	num = int(sys.argv[2])
+	const = int(sys.argv[2])
+	kappa = int(sys.argv[3])
+	print(const)
 except:
-	omega = (0.5+1)*np.pi*np.pi
 	print("except data")
 
-folder = "kappa"+str(kappa)+"omega"+str(num)
+folder = "kappa"+str(kappa)+"dt"+str(delta_tau)
+
+omega = (const/2)*np.pi*np.pi 
+
+H_R = generate_H(psi=psi_R, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
+H_I = generate_H(psi=psi_I, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
 
 try:
 	os.mkdir(folder)
 except:
-	print(folder)
 	print("except folder")
 
-path_dat = folder+"/data_n"+str(n)+".dat"
-
+path_dat = folder+"/data_n"+str(n)+'k'+str(kappa)+'o'+str(const)+".dat"
 
 with open(path_dat, "w") as f:
 	f.write('')
@@ -109,6 +111,8 @@ for i in range(number_of_steps):
 			f.write('\n\n')
 	if i == 1 or i == number_of_steps/2 or i ==number_of_steps-2:
 		rho_k = psi_R[:,::2]**2 + psi_I[:,::2]**2
-		np.savetxt(folder+"/rho_n"+str(n)+'i'+str(i)+".dat", rho_k)
+		np.savetxt(folder+"/rho_n"+str(n)+'i'+str(i)+'k'+str(kappa)+'o'+str(const)+".dat", rho_k)
+
+os.system("python charts.py -i "+str(n)+" "+str(kappa)+" "+str(const))
 
 print("finish")
