@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 
 import numpy as np
 import sys
 import os
+
+#kilka omeg
 
 #nadowan czstka 1D przestrzen i jednorodne pole o zmiennej amplitudzie oscylujacej w czasie
 #ewolucja f falowej elektrony i pochlanianie i oddawnaie energii elektrycznej
@@ -54,7 +55,7 @@ def generate_H(psi, x_k, delta_x, kappa, omega, tau, N):
 	H[:,1:N] = -1*(psi[:,:N-1]+psi[:,2:]-2*psi[:,1:N])/delta_x/delta_x/2 + kappa*(x_k[:,1:N]-1/2)*psi[:,1:N]*np.sin(omega*tau)
 	return H
 
-const = 8
+const = 4
 kappa = 5
 tau = 0
 
@@ -62,9 +63,9 @@ N = 100
 delta_x = 1./N
 x_k = np.array(range(N+1)).reshape(1,N+1)*delta_x
 
-n = 4 #1 4 9
+n = 1 #1 4 9
 
-number_of_steps = 4000
+number_of_steps = 600000
 delta_tau = 0.0001
 
 psi_I = np.zeros(shape=(1,N+1))
@@ -72,12 +73,12 @@ psi_R = np.sqrt(2)*np.sin(np.pi*x_k*n)
 
 try:
 	const = int(sys.argv[2])
-	kappa = int(sys.argv[3])
+	#kappa = int(sys.argv[3])
 	print(const)
 except:
 	print("except data")
 
-folder = "kappa"+str(kappa)+"dt"+str(delta_tau)
+folder = "kappa"+str(kappa)#+"dt"+str(delta_tau)
 
 omega = (const/2)*np.pi*np.pi 
 
@@ -94,6 +95,21 @@ path_dat = folder+"/data_n"+str(n)+'k'+str(kappa)+'o'+str(const)+".dat"
 with open(path_dat, "w") as f:
 	f.write('')
 
+#rho stuff
+path_rho = "rho/rho_"+str(n)+'k'+str(kappa)+'o'+str(const)+".dat"
+
+try: 
+	f = open(path_rho, "a")
+	f.close()
+
+except:			
+	f = open(path_rho, "w")
+	f.close()
+
+T = 2*np.pi/omega
+print(T)
+iterat = 0
+
 for i in range(number_of_steps):
 	tau = i*delta_tau
 	psi_R = psi_R + H_I*delta_tau/2
@@ -102,16 +118,27 @@ for i in range(number_of_steps):
 	H_I = generate_H(psi=psi_I, x_k=x_k, delta_x=delta_x, kappa=kappa, omega=omega, tau=tau, N=N)
 	psi_R = psi_R + H_I*delta_tau/2
 	
-	if i%10 ==0:
+	if i%300 ==0:
 		with open(path_dat, "a") as f:
 			Ne = delta_x*np.sum( psi_R**2 + psi_I**2 )
 			x_sr = delta_x*np.sum( x_k*(psi_R**2 + psi_I**2) )
 			epsilon = delta_x*np.sum( psi_R*H_R + psi_I*H_I )
 			f.write(str(tau+delta_tau+i*delta_tau)+' '+str(Ne)+' '+str(x_sr)+' '+str(epsilon))
 			f.write('\n\n')
-	if i == 1 or i == number_of_steps/2 or i ==number_of_steps-2:
+		
+		rho_k = psi_R[:,::2]**2 + psi_I[:,::2]**2
+		with open(path_rho, "a") as f:
+			for j in rho_k[0]:
+				f.write(str(j))
+				f.write("\n")
+			f.write("\n\n")
+		
+		print(float(i)/number_of_steps)
+		
+	if (i == 1 or i == number_of_steps/2 or i ==number_of_steps-2) and iterat<3:
 		rho_k = psi_R[:,::2]**2 + psi_I[:,::2]**2
 		np.savetxt(folder+"/rho_n"+str(n)+'i'+str(i)+'k'+str(kappa)+'o'+str(const)+".dat", rho_k)
+		iterat+=1
 
 os.system("python charts.py -i "+str(n)+" "+str(kappa)+" "+str(const))
 

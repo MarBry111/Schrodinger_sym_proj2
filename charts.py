@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*- 
 
 import numpy as np
@@ -19,11 +19,11 @@ try:
 except:
 	pass
 
-folder = "kappa"+str(kappa)+"dt"+str(dt)
+folder = "kappa"+str(kappa)#+"dt"+str(dt)
 
 rho1 = np.loadtxt(folder+"/rho_n"+str(n)+'i1k'+str(kappa)+'o'+str(omega)+".dat")
-rho2 = np.loadtxt(folder+"/rho_n"+str(n)+'i2000k'+str(kappa)+'o'+str(omega)+".dat")
-rho3 = np.loadtxt(folder+"/rho_n"+str(n)+'i3998k'+str(kappa)+'o'+str(omega)+".dat")
+rho2 = np.loadtxt(folder+"/rho_n"+str(n)+'i75000k'+str(kappa)+'o'+str(omega)+".dat")
+rho3 = np.loadtxt(folder+"/rho_n"+str(n)+'i149998k'+str(kappa)+'o'+str(omega)+".dat")
 
 data = []
 
